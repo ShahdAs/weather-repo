@@ -56,7 +56,7 @@ class HomePage extends StatelessWidget {
                       width: MediaQuery.of(context).size.width,
                       child: BlocBuilder<HomeBloc,HomeState>(
                         builder: (context, state) {
-                          if(state is LoadedStateGetMyCurrentLocation){
+                          if(state.myCurrent.isSuccess()){
                             return Stack(
                               alignment: Alignment.center,
                               children: <Widget>[
@@ -64,7 +64,7 @@ class HomePage extends StatelessWidget {
                                   duration: const Duration(seconds: 1),
                                   top: percentBool ? 80 : 92,
                                   child:
-                                  Text(state.data.temp_c.toString(),
+                                  Text(state.myCurrent.data.temp_c.toString(),
                                       style: font34),
                                 ),
                                 AnimatedPositioned(

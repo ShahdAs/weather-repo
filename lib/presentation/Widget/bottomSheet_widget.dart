@@ -28,7 +28,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         print(state);
-        if (state is LoadedStateGetMyForecast) {
+        if (state.myForecast.isSuccess()) {
           return NotificationListener <DraggableScrollableNotification>(
             onNotification: (notification) {
               Provider
@@ -130,7 +130,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                                         .of(context)
                                         .size
                                         .width),
-                                    child: tbbarWW(data: state.data,),
+                                    child: tbbarWW(data: state.myForecast.data,),
                                   )
                                 ],
                               ),

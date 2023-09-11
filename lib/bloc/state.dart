@@ -1,39 +1,24 @@
 part of 'bloc.dart';
 
 
-abstract class HomeState{
+ class HomeState{
+  final BlocStatus myForecast;
+  final BlocStatus autoComplete;
+  final BlocStatus myCurrent;
+
+  HomeState({
+    this.myForecast = const BlocStatus.initial(),
+    this.autoComplete = const BlocStatus.initial(),
+    this.myCurrent = const BlocStatus.initial(),
+ });
+
+  HomeState copyWith({BlocStatus? myForecast,BlocStatus? autoComplete,BlocStatus? myCurrent}){
+    return HomeState(
+      myForecast: myForecast ?? this.myForecast,
+      autoComplete: autoComplete ?? this.autoComplete,
+      myCurrent: myCurrent ?? this.myCurrent,
+    );
+  }
+
 }
 
-
-
-class InitState extends HomeState{
-
-
-}
-
-class LoadingState extends HomeState{
-
-}
-
-class LoadingStateGetMyForecast extends HomeState{
-
-}
-class LoadingStateGetMyCurrentLocation extends HomeState{
-
-}
-
-
-class LoadedStateGetMyForecast extends HomeState{
-  final List<Forcast> data;
-  LoadedStateGetMyForecast({
-    required this.data
-});
-}
-class LoadedStateAutoComplete extends HomeState{
-  final List<String> data;
-  LoadedStateAutoComplete({required this.data});
-}
- class LoadedStateGetMyCurrentLocation extends HomeState{
-  final CurrentModel data;
-  LoadedStateGetMyCurrentLocation({required this.data});
- }

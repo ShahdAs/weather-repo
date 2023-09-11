@@ -150,9 +150,9 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                   );
                 },
                 listener: (BuildContext context, HomeState state) {
-                  if (state is LoadedStateAutoComplete) {
+                  if (state.autoComplete.isSuccess()) {
                     hideOverlay();
-                    return showOverlay(state.data);
+                    return showOverlay(state.autoComplete.data);
                   } else {
                     hideOverlay();
                     return showOverlay_circle();
