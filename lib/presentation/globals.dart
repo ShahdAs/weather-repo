@@ -92,3 +92,31 @@ const TextStyle font34 = TextStyle(
   fontFamily: "SF",
   height: 1,
 );
+
+
+
+
+class Global with ChangeNotifier{
+  static Global? _instance;
+
+  Global._internal(){
+
+  }
+
+  static Global getInstance(){
+    _instance ??= Global._internal();
+    return _instance!;
+  }
+
+  var myForecastVar = null;
+  var myCurrentVar = null;
+
+  bool isnull() {
+    if (myCurrentVar == null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+}

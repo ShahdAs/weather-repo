@@ -17,7 +17,8 @@ class UnderlineInputBorderE extends InputBorder {
       topLeft: Radius.circular(4.0),
       topRight: Radius.circular(4.0),
     ),
-  }) : assert(borderRadius != null);
+  });
+   // : assert(borderRadius != null);
 
   /// The radii of the border's rounded rectangle corners.
   ///

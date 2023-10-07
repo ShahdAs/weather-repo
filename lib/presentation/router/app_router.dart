@@ -10,12 +10,10 @@ class AppRouter {
         return MaterialPageRoute(
             builder: (_) => HomePage()
         );
-        break;
       case '/first_screen':
         return MaterialPageRoute(
             builder: (_) => FirstScreen()
         );
-        break;
       default:
         return null;
     }

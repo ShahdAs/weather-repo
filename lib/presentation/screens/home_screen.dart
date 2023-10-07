@@ -1,29 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:project/bloc/bloc.dart';
-import 'package:provider/provider.dart';
-import '../../core/api/api.dart';
-import '../../provider/myProvider.dart';
+import '../../bloc/bloc.dart';
 import '../Widget/bottomSheet_widget.dart';
 import '../globals.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key});
+   HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    double percent = Provider.of<MyProvider>(context, listen: true).percent;
-    bool percentBool =
-        Provider.of<MyProvider>(context, listen: true).percent > 0.6
-            ? true
-            : false;
-    context
-        .read<HomeBloc>()
-        .add(GetMyCurrentLocation(data: "Aleppo"));
-    return Scaffold(
-      backgroundColor: const Color.fromRGBO(69, 39, 139, 1),
+  Global global = Global.getInstance();
+    var myCurrentVar =global.myCurrentVar;
+    bool isnull = global.isnull();
 
-      body: SizedBox(
+
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        if(state.getExtent.isSuccess()){
+          double extant = state.getExtent.data;
+          double percent = (extant - 0.4) * 100 / 42;
+          bool percentBool = percent > 0.6 ? true : false;
+          return Scaffold(
+              backgroundColor: const Color.fromRGBO(69, 39, 139, 1),
+              body: SizedBox(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 child: Stack(
@@ -43,8 +42,7 @@ class HomePage extends StatelessWidget {
                           width: MediaQuery.of(context).size.width,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image: const AssetImage(
-                                  "assets/images/background.jpg"),
+                              image: const AssetImage("assets/images/background.jpg"),
                               opacity: 1 - percent,
                               fit: BoxFit.cover,
                             ),
@@ -52,90 +50,71 @@ class HomePage extends StatelessWidget {
                           child: null),
                     ),
                     SizedBox(
-                      height: 400,
-                      width: MediaQuery.of(context).size.width,
-                      child: BlocBuilder<HomeBloc,HomeState>(
-                        builder: (context, state) {
-                          if(state.myCurrent.isSuccess()){
-                            return Stack(
-                              alignment: Alignment.center,
-                              children: <Widget>[
-                                AnimatedPositioned(
-                                  duration: const Duration(seconds: 1),
-                                  top: percentBool ? 80 : 92,
-                                  child:
-                                  Text(state.myCurrent.data.temp_c.toString(),
-                                      style: font34),
-                                ),
-                                AnimatedPositioned(
-                                  duration: const Duration(seconds: 1),
-                                  left: percentBool
-                                      ? MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width / 2 - 70
-                                      : null,
-                                  top: 125,
-                                  child: Row(
-                                    children: [
-                                      AnimatedDefaultTextStyle(
-                                        duration: const Duration(seconds: 1),
-                                        style: percentBool ? font20l : fontBig,
-                                        child: const Text("19°"),
-                                      ),
-                                      AnimatedOpacity(
-                                        opacity: percentBool ? 1 : 0,
-                                        duration: const Duration(seconds: 1),
-                                        child: const Text(
-                                          " |",
-                                          style: font20l,
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                AnimatedPositioned(
-                                  duration: const Duration(seconds: 1),
-                                  top: percentBool ? 125 : 230,
-                                  left: percentBool
-                                      ? MediaQuery
-                                      .of(context)
-                                      .size
-                                      .width / 2 - 25
-                                      : null,
-                                  child: const Text(
-                                      "Mostly Clear", style: font20l),
-                                ),
-                                AnimatedPositioned(
-                                  duration: const Duration(seconds: 1),
-                                  top: percentBool ? 140 : 240,
-                                  child: AnimatedOpacity(
-                                    opacity: percentBool ? 0 : 1,
+                        height: 400,
+                        width: MediaQuery.of(context).size.width,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: <Widget>[
+                            AnimatedPositioned(
+                              duration: const Duration(seconds: 1),
+                              top: percentBool ? 80 : 92,
+                              child: isnull
+                                  ? const CircularProgressIndicator()
+                                  : Text(myCurrentVar.temp_c.toString(),
+                                  style: font34),
+                            ),
+                            AnimatedPositioned(
+                              duration: const Duration(seconds: 1),
+                              left: percentBool
+                                  ? MediaQuery.of(context).size.width / 2 - 70
+                                  : null,
+                              top: 125,
+                              child: Row(
+                                children: [
+                                  AnimatedDefaultTextStyle(
                                     duration: const Duration(seconds: 1),
-                                    child: const Row(
-                                      mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                      children: <Widget>[
-                                        Text("H:24°", style: font20b),
-                                        SizedBox(
-                                          width: 10,
-                                        ),
-                                        Text("L:18°", style: font20b)
-                                      ],
-                                    ),
+                                    style: percentBool ? font20l : fontBig,
+                                    child: const Text("19°"),
                                   ),
+                                  AnimatedOpacity(
+                                    opacity: percentBool ? 1 : 0,
+                                    duration: const Duration(seconds: 1),
+                                    child: const Text(
+                                      " |",
+                                      style: font20l,
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            AnimatedPositioned(
+                              duration: const Duration(seconds: 1),
+                              top: percentBool ? 125 : 230,
+                              left: percentBool
+                                  ? MediaQuery.of(context).size.width / 2 - 25
+                                  : null,
+                              child: const Text("Mostly Clear", style: font20l),
+                            ),
+                            AnimatedPositioned(
+                              duration: const Duration(seconds: 1),
+                              top: percentBool ? 140 : 240,
+                              child: AnimatedOpacity(
+                                opacity: percentBool ? 0 : 1,
+                                duration: const Duration(seconds: 1),
+                                child: const Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Text("H:24°", style: font20b),
+                                    SizedBox(
+                                      width: 10,
+                                    ),
+                                    Text("L:18°", style: font20b)
+                                  ],
                                 ),
-                              ],
-                            );
-                          }else{
-                            return Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                        }
-                      ),
-                    ),
+                              ),
+                            ),
+                          ],
+                        )),
                     Positioned(
                       bottom: 50 + percent * MediaQuery.of(context).size.height,
                       left: 0,
@@ -144,19 +123,18 @@ class HomePage extends StatelessWidget {
                           height: (MediaQuery.of(context).size.height - 312),
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                              image:
-                              const AssetImage("assets/images/house.png"),
+                              image: const AssetImage("assets/images/house.png"),
                               fit: BoxFit.fitWidth,
                               opacity: 1 - percent,
                             ),
                           ),
                           child: null),
                     ),
-                    BottomSheetWidget(),
+                    const BottomSheetWidget(),
                     Positioned(
                       bottom: (-percent) * MediaQuery.of(context).size.height,
                       left: 0,
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         height: 80,
                         child: CustomPaint(
@@ -165,10 +143,9 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     Positioned(
-                      bottom:
-                      (-percent * 3) * MediaQuery.of(context).size.height,
+                      bottom: (-percent * 3) * MediaQuery.of(context).size.height,
                       left: 0,
-                      child: Container(
+                      child: SizedBox(
                         width: MediaQuery.of(context).size.width,
                         height: 80,
                         child: CustomPaint(
@@ -179,9 +156,8 @@ class HomePage extends StatelessWidget {
                     Stack(
                       children: [
                         Positioned(
-                          bottom: 8 +
-                              (-percent * 3) *
-                                  MediaQuery.of(context).size.height,
+                          bottom:
+                          8 + (-percent * 3) * MediaQuery.of(context).size.height,
                           left: MediaQuery.of(context).size.width / 2 - 31,
                           child: Container(
                             height: 64,
@@ -198,8 +174,7 @@ class HomePage extends StatelessWidget {
                                     ],
                                     begin: Alignment.topLeft,
                                     end: Alignment.bottomRight),
-                                borderRadius:
-                                BorderRadius.all(Radius.circular(50)),
+                                borderRadius: BorderRadius.all(Radius.circular(50)),
                                 boxShadow: [
                                   BoxShadow(
                                     color: Color.fromRGBO(0, 0, 0, 0.2),
@@ -216,15 +191,13 @@ class HomePage extends StatelessWidget {
                         ),
                         Positioned(
                           bottom: 11 +
-                              (-percent * 3) *
-                                  MediaQuery.of(context).size.height,
+                              (-percent * 8) * MediaQuery.of(context).size.height,
                           left: MediaQuery.of(context).size.width / 2 - 28,
                           child: Container(
                             height: 58,
                             width: 58,
                             decoration: const BoxDecoration(
-                              borderRadius:
-                              BorderRadius.all(Radius.circular(50)),
+                              borderRadius: BorderRadius.all(Radius.circular(50)),
                               gradient: LinearGradient(
                                   colors: [
                                     Color.fromRGBO(255, 255, 255, 0),
@@ -240,8 +213,8 @@ class HomePage extends StatelessWidget {
                             child: IconButton(
                               iconSize: 44,
                               onPressed: () {},
-                              icon: Icon(Icons.add_rounded),
-                              color: Color.fromRGBO(72, 49, 159, 1),
+                              icon: const Icon(Icons.add_rounded),
+                              color: const Color.fromRGBO(72, 49, 159, 1),
                             ),
                           ),
                         ),
@@ -249,8 +222,11 @@ class HomePage extends StatelessWidget {
                     )
                   ],
                 ),
-              )
-      );
+              ));
+        }
+        return Container(child: null,);
+      },
+    );
   }
 }
 
@@ -296,15 +272,15 @@ class CustomPaint2 extends CustomPainter {
       ..color = const Color.fromRGBO(255, 255, 255, 0.2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1;
-    Path path = Path()..moveTo(size.width * 2 / 10, size.height);
-    path.quadraticBezierTo(size.width * 3 / 10 + 20, size.height,
-        size.width * 3 / 10 + 25, size.height * 2 / 5);
+    Path path = Path()..moveTo(size.width/2 -120, size.height);
+    path.quadraticBezierTo(size.width /2 -60, size.height,
+        size.width /2-50, size.height /3);
     path.quadraticBezierTo(
-        size.width * 3 / 10 + 30, -3, size.width * 5 / 10, 0);
-    path.quadraticBezierTo(size.width * 7 / 10 - 30, -3,
-        size.width * 7 / 10 - 25, size.height * 2 / 5);
-    path.quadraticBezierTo(size.width * 7 / 10 - 20, size.height,
-        size.width * 8 / 10, size.height);
+        size.width /2 -45, -3, size.width /2, 0);
+    path.quadraticBezierTo(size.width /2 + 45, -3,
+        size.width /2 + 50, size.height / 3);
+    path.quadraticBezierTo(size.width /2 +60, size.height,
+        size.width/2 +120, size.height);
     path.close();
     Rect rect = Rect.fromCircle(
       center: Offset(size.width / 2, size.height / 2),

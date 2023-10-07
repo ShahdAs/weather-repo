@@ -2,11 +2,13 @@ import 'package:blurrycontainer/blurrycontainer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/bloc/bloc.dart';
-import 'package:provider/provider.dart';
 import '../../core/model/forecast.dart';
-import '../../provider/myProvider.dart';
 import '../globals.dart';
 import 'tabBar_edited.dart';
+
+
+
+
 
 class BottomSheetWidget extends StatefulWidget {
   const BottomSheetWidget({Key? key}) : super(key: key);
@@ -16,37 +18,30 @@ class BottomSheetWidget extends StatefulWidget {
 }
 
 class _BottomSheetWidgetState extends State<BottomSheetWidget> {
-
   @override
   Widget build(BuildContext context) {
-    double percent = Provider
-        .of<MyProvider>(context, listen: true)
-        .percent;
-    context
-        .read<HomeBloc>()
-        .add(GetForecast(data: "Aleppo"));
     return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        print(state);
-        if (state.myForecast.isSuccess()) {
-          return NotificationListener <DraggableScrollableNotification>(
-            onNotification: (notification) {
-              Provider
-                  .of<MyProvider>(context, listen: false)
-                  .x = notification.extent;
-              Provider.of<MyProvider>(context, listen: false).change();
-              return true;
-            },
-            child: DraggableScrollableSheet(
-                snap: true,
-                initialChildSize: 0.38,
-                minChildSize: 0.38,
-                maxChildSize: 0.8,
-                builder: (BuildContext context, myScrollController) {
-                  return ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(0)),
-                    child: SingleChildScrollView(
+  builder: (context, state) {
+
+    if(state.getExtent.isSuccess()){
+      double extant = state.getExtent.data;
+      double percent = (extant - 0.4) * 100 / 42;
+
+      return  NotificationListener<DraggableScrollableNotification>(
+          onNotification: (notification) {
+            context.read<HomeBloc>().add(GetExtant(data: notification.extent));
+            return true;
+          },
+          child: DraggableScrollableSheet(
+              snap: true,
+              initialChildSize: 0.4,
+              minChildSize: 0.4,
+              maxChildSize: 0.8,
+              builder: (BuildContext context, myScrollController) {
+                return ClipRRect(
+                  borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(0)),
+                  child: SingleChildScrollView(
                       controller: myScrollController,
                       child: Container(
                         width: (MediaQuery
@@ -56,11 +51,10 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                         height: MediaQuery
                             .of(context)
                             .size
-                            .height - 160,
+                            .height -156,
                         decoration: BoxDecoration(
-                            borderRadius:
-                            BorderRadius.vertical(top: Radius.circular(
-                                50 - percent * 50)),
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(50 - percent * 50)),
                             gradient: bottomSheetGrad,
                             boxShadow: [
                               BoxShadow(
@@ -75,7 +69,9 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                           children: [
                             BlurryContainer(
                               blur: 30,
-                              height: 300,
+                              height: MediaQuery
+                                  .of(context)
+                                  .size.height / 2,
                               borderRadius: BorderRadius.circular(
                                 50 - percent * 50,
                               ),
@@ -114,8 +110,7 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                                                 ]),
                                             boxShadow: [
                                               BoxShadow(
-                                                  color:
-                                                  Color.fromRGBO(
+                                                  color: Color.fromRGBO(
                                                       255, 255, 255, 1),
                                                   blurRadius: 15,
                                                   offset: Offset(0, -11),
@@ -126,41 +121,40 @@ class _BottomSheetWidgetState extends State<BottomSheetWidget> {
                                   ),
                                   SizedBox(
                                     height: 200,
-                                    width: (MediaQuery
+                                    width:
+                                    (MediaQuery
                                         .of(context)
                                         .size
                                         .width),
-                                    child: tbbarWW(data: state.myForecast.data,),
+                                    child: TabBarWidget(),
                                   )
                                 ],
                               ),
                             ),
                           ],
                         ),
-                      ),
-                    ),
-                  );
-                }),
-          );
-
-        }else{
-          return const CircularProgressIndicator();
-        }
-      },
-    );
+                      )),
+                );
+              })
+      );
+    }
+    else{
+      return Container(child: null,);
+    }
+  },
+);
   }
 }
 
-class tbbarWW extends StatefulWidget {
-  final List<Forcast> data;
+class TabBarWidget extends StatefulWidget {
 
-  const tbbarWW({Key? key, required this.data}) : super(key: key);
+  const TabBarWidget({Key? key}) : super(key: key);
 
   @override
-  State<tbbarWW> createState() => _tbbarWWState();
+  State<TabBarWidget> createState() => _TabBarWidgetState();
 }
 
-class _tbbarWWState extends State<tbbarWW> with SingleTickerProviderStateMixin {
+class _TabBarWidgetState extends State<TabBarWidget> with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
   @override
@@ -177,6 +171,9 @@ class _tbbarWWState extends State<tbbarWW> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    Global global = Global.getInstance();
+    bool isnull = global.isnull();
+    List<Forecast> myForecastVar = global.myForecastVar;
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Column(
@@ -184,7 +181,6 @@ class _tbbarWWState extends State<tbbarWW> with SingleTickerProviderStateMixin {
           SizedBox(
             height: 25,
             child: TabBar(
-              ///hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh
               indicator: ShapeDecoration(
                 shape: UnderlineInputBorderE(
                   borderSide: const BorderSide(),
@@ -194,10 +190,10 @@ class _tbbarWWState extends State<tbbarWW> with SingleTickerProviderStateMixin {
               labelStyle: font15,
               tabs: const [
                 Tab(
-                  text: ("Hourly Forcast"),
+                  text: ("Hourly Forecast"),
                 ),
                 Tab(
-                  text: ("Weekly Forcast"),
+                  text: ("Weekly Forecast"),
                 ),
               ],
             ),
@@ -220,10 +216,10 @@ class _tbbarWWState extends State<tbbarWW> with SingleTickerProviderStateMixin {
                 ]),
           ),
           Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [ListWW(widget.data), ListWW(widget.data)],
-            ),
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [listWidget(myForecastVar, isnull), listWidget(myForecastVar, isnull)],
+                    )
           ),
         ],
       ),
@@ -231,14 +227,14 @@ class _tbbarWWState extends State<tbbarWW> with SingleTickerProviderStateMixin {
   }
 }
 
-
-Widget ListWW(List<Forcast> data) {
+Widget listWidget(List<Forecast> data, bool isnull) {
   return Container(
     margin: const EdgeInsets.all(6),
     height: 142,
     width: 100,
     child: ListView.builder(
-      itemCount: data.length,
+      shrinkWrap: true,
+      itemCount: data[0].hour.length,
       scrollDirection: Axis.horizontal,
       itemBuilder: (BuildContext context, int index) {
         return Row(
@@ -270,9 +266,11 @@ Widget ListWW(List<Forcast> data) {
                   children: <Widget>[
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.5, 16, 8.5, 0),
-                      child: Text(data[index].mintemp_c.toString() + "/" +
-                          data[index].maxtemp_c.toString(), style: font15,
-                        maxLines: 1,),
+                      child: isnull ? const CircularProgressIndicator():Text(
+                        "${data[0].hour[index].time.substring(11,13).trim()}",
+                        style: font15,
+                        maxLines: 1,
+                      ),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.5, 8, 8.5, 0),
@@ -288,16 +286,20 @@ Widget ListWW(List<Forcast> data) {
                               ),
                             ),
                           ),
-                          Text(data[index].daily_chance_of_rain.toString() +
-                              "%", style: fontB,)
+                          isnull ?  const CircularProgressIndicator(): Text(
+                            "${data[0].hour[index].chance_of_rain}%",
+                            style: fontB,
+                          )
                         ],
                       ),
                     ),
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.5, 16, 8.5, 0),
-                      child: Text(
-                        data[index].condition.text + "°", style: font20,
-                        maxLines: 1,),
+                      child: isnull ? const CircularProgressIndicator(): Text(
+                        "${data[0].hour[index].temp_c}°",
+                        style: font15,
+                        maxLines: 1,
+                      ),
                     ),
                   ],
                 ),
@@ -309,3 +311,8 @@ Widget ListWW(List<Forcast> data) {
     ),
   );
 }
+
+
+
+
+

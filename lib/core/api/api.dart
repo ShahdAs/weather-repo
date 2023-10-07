@@ -22,17 +22,40 @@ class ApiRepo {
     }
   }
 
-  Future<List<Forcast>> getMyForcast(String location) async {
+  // Future<List<Forcast>> getMyForcast(String location) async {
+  //   try{
+  //     final result = await http
+  //         .get(Uri.parse("${baseUrl}forecast.json").replace(queryParameters: {
+  //       "q": location,
+  //       "days": "7",
+  //       "key": "280a64967d164de8a82232719233108",
+  //     }));
+  //     print(result.statusCode);
+  //     return (jsonDecode(result.body)['forecast']['forecastday'] as List)
+  //         .map((e) => Forcast.fromJson(e["day"]))
+  //         .toList();
+  //   }
+  //   catch(e,s){
+  //     print(e.toString());
+  //     print(s);
+  //     throw e;
+  //   }
+  // }
+
+  Future<List<Forecast>> getMyForcast(String location) async {
     try{
       final result = await http
           .get(Uri.parse("${baseUrl}forecast.json").replace(queryParameters: {
         "q": location,
         "days": "7",
         "key": "280a64967d164de8a82232719233108",
+        "aqi": "yes",
+        "alerts" : "yes"
       }));
       print(result.statusCode);
+      print('im hheeree');
       return (jsonDecode(result.body)['forecast']['forecastday'] as List)
-          .map((e) => Forcast.fromJson(e["day"]))
+          .map((e) => Forecast.fromJson(e))
           .toList();
     }
     catch(e,s){
@@ -41,7 +64,6 @@ class ApiRepo {
       throw e;
     }
   }
-
 
   Future<List<String>> autoComplete(String location) async {
     try{

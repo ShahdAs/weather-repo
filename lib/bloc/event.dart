@@ -19,3 +19,10 @@ class GetMyCurrentLocation extends HomeEvent {
 
   GetMyCurrentLocation({required this.data});
 }
+
+class GetExtant extends HomeEvent{
+  final double data;
+  GetExtant({
+    required this.data
+});
+}
