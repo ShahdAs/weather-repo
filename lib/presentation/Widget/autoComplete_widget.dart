@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/presentation/globals.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../bloc/bloc.dart';
+import 'TextFieldStyled_widget.dart';
+
+late TextEditingController textEditingController;
 
 class AutoCompleteWidget extends StatefulWidget {
   const AutoCompleteWidget({Key? key}) : super(key: key);
@@ -12,7 +15,6 @@ class AutoCompleteWidget extends StatefulWidget {
 }
 
 class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
-  late TextEditingController textEditingController;
   OverlayEntry? overlayEntry;
   final layerLink = LayerLink();
   final focusNode = FocusNode();
@@ -25,7 +27,6 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
     WidgetsBinding.instance.addPostFrameCallback((_) {});
     focusNode.addListener(() {
       if (focusNode.hasFocus) {
-        showOverlay(null, true);
       } else {
         hideOverlay();
       }
@@ -46,16 +47,16 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
 
     overlayEntry = OverlayEntry(builder: (BuildContext context) {
       return Positioned(
-          width: size.width - 12,
+          width: size.width - 16,
           height: isCircle
-              ? 200
+              ? 150
               : list!.length <= 3
-                  ? list.length * 60
-                  : 200,
+                  ? list.length * 50
+                  : 180,
           child: CompositedTransformFollower(
               link: layerLink,
               showWhenUnlinked: false,
-              offset: Offset(0, size.height + 8),
+              offset: Offset(0, size.height - 7),
               child: isCircle
                   ? buildOverlay(null, true)
                   : buildOverlay(list, false)));
@@ -87,7 +88,8 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                   children: [
                     CompositedTransformTarget(
                       link: layerLink,
-                      child: TextField(
+                      child: TextFieldStyled(
+                        hintText: "Enter your region",
                         focusNode: focusNode,
                         controller: textEditingController,
                         onChanged: (s) {
@@ -95,56 +97,31 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
                             context
                                 .read<HomeBloc>()
                                 .add(AutoCom(data: s.toLowerCase()));
-                            if (state.autoComplete.isSuccess()) {
-                              context.read<HomeBloc>()
-                                ..add(GetMyCurrentLocation(data: s))
-                                ..add(GetForecast(data: s));
-                            }
                           }
                           setState(() {});
                         },
-                        onSubmitted: null
-                        //     (String x) {
-                        //   // Provider.of<MyProvider>(context, listen: false)
-                        //   //     .autoCompleteValueA = x;
-                        //   focusNode.unfocus();
-                        //   hideOverlay();
-                        // }
-                        ,
-                        decoration: const InputDecoration(
-                            helperStyle: font20,
-                            enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                  width: 1.5,
-                                  color: Color.fromRGBO(62, 63, 106, 1),
-                                ),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(15))),
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            fillColor: Color.fromRGBO(46, 51, 90, 1),
-                            filled: true,
-                            focusedBorder: UnderlineInputBorder(
-                                borderSide: BorderSide(
-                              color: Color.fromRGBO(62, 63, 130, 1),
-                            ))),
-                        style: font20,
-                      ),
+                        onSubmitted: (String value) {
+                        },
+                      )
                     ),
                   ],
                 ),
               );
             },
             listener: (BuildContext context, HomeState state) {
-              if (state.autoComplete.isSuccess()) {
-                print("iscalled");
+              if (focusNode.hasFocus) {
+                if (state.autoComplete.isSuccess()) {
+                  hideOverlay();
+                  showOverlay(state.autoComplete.data, false);
+                } else if (state.autoComplete.isLoading()) {
+                  hideOverlay();
+                  showOverlay(null, true);
+                } else {
+                  hideOverlay();
+                }
+              } else {
                 hideOverlay();
-                showOverlay(state.autoComplete.data, false);
-              } else if(state.autoComplete.isLoading()){
-                hideOverlay();
-                showOverlay(null, true);
-              } else{hideOverlay();}
+              }
             },
           )),
     );
@@ -156,56 +133,100 @@ class _AutoCompleteWidgetState extends State<AutoCompleteWidget> {
       child: Material(
         color: Colors.transparent,
         child: Container(
+          margin:  const EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           height: isCircle
-              ? 200
+              ? 180
               : list!.length <= 3
-                  ? list.length * 60
-                  : 200,
+                  ? list.length * 50
+                  : 150,
           decoration: BoxDecoration(
-              color: Colors.transparent,
-              border: Border.all(
-                  color: const Color.fromRGBO(72, 49, 157, 0.5), width: 1.5),
+              // color: Colors.transparent,
+              gradient: backGroundGrad,
+              border: Border.all(color: Colors.black12, width: 0.5),
               borderRadius: const BorderRadius.all(Radius.circular(15))),
-          child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: isCircle ? 3 : list!.length,
-              itemBuilder: (BuildContext context, int index) {
-                final String element =
-                    isCircle ? "j" : list!.elementAt(index).toLowerCase();
-                return Container(
-                  height: 60,
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                  gradient: navGrad1,
-                  border:
-                      Border(bottom: BorderSide(color: Colors.white38))),
-                  child: ListTile(
-                title: isCircle
-                    ? SizedBox(
-                        height: 20,
-                        width: 200,
-                        child: Shimmer.fromColors(
-                          baseColor: Colors.white12,
-                          highlightColor: Colors.white60,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Container(
+                  decoration: BoxDecoration(boxShadow: [
+                    BoxShadow(
+                      color:const  Color.fromRGBO(0, 0, 0, 0.5),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                      offset: Offset(0, -constraints.maxHeight),
+                    ),
+                    BoxShadow(
+                      color: const Color.fromRGBO(0, 0, 0, 0.5),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                      offset: Offset(constraints.maxWidth , 0),
+                    ),
+                     BoxShadow(
+                      color: const Color.fromRGBO(0, 0, 0, 0.2),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                      offset: Offset(0, constraints.maxHeight),
+                    ),
+                    BoxShadow(
+                      color: const Color.fromRGBO(0, 0, 0, 0.2),
+                      blurRadius: 12,
+                      spreadRadius: 0,
+                      offset: Offset(-constraints.maxWidth, 0),
+                    ),
+                  ]),
+                child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    itemCount: isCircle ? 3 : list!.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final String element =
+                          isCircle ? "j" : list!.elementAt(index).toLowerCase();
+                      return GestureDetector(
                           child: Container(
-                            height: 10,
-                            width: 200,
-                            decoration: BoxDecoration(
-                                color: Colors.white60,
-                                borderRadius: BorderRadius.circular(5)),
-                          ),
-                        ))
-                    : Text(
-                        element,
-                        style: font20,
-                      ),
-                onTap: () {
-                  textEditingController.text = isCircle ? "" : element;
-                  hideOverlay();
-                },
-                  ),
-                );
-              }),
+                        height: 50,
+                        margin:  const EdgeInsets.all(0),
+                        padding: const EdgeInsets.all(0),
+                        decoration: const BoxDecoration(
+                            border:
+                                Border(bottom: BorderSide( width: 0.5, color: Colors.white38))),
+                        child: ListTile(
+                          title: isCircle
+                              ? SizedBox(
+                                  height: 18,
+                                  width: 200,
+                                  child: Shimmer.fromColors(
+                                    baseColor: Colors.white12,
+                                    highlightColor: Colors.white60,
+                                    child: Container(
+                                      height: 10,
+                                      width: 200,
+                                      decoration: BoxDecoration(
+                                          color: Colors.white60,
+                                          borderRadius: BorderRadius.circular(5)),
+                                    ),
+                                  ))
+                              : Text(
+                                  element,
+                                  style: font20,
+                                ),
+                          onTap: () {
+                            textEditingController.text = isCircle ? "" : element;
+                            // context.read<HomeBloc>()
+                            //   ..add(GetMyCurrentLocationRemove())
+                            //   ..add(GetForecastRemove());
+                            hideOverlay();
+                            focusNode.unfocus();
+                          },
+                        ),
+                      )
+                          // onTap: () {
+                          //   onSelected(element);
+                          // },
+
+                          );
+                    }),
+              );
+            }
+          ),
         ),
       ),
     );

@@ -1,28 +1,35 @@
 import 'dart:core';
 
-enum _Status { initial, loading, success, none }
+enum Status { initial, loading, success, error }
 
 class BlocStatus<T> {
-  final _Status status;
+  final Status status;
   final T? data;
 
-  const BlocStatus({this.status = _Status.initial,this.data});
+  const BlocStatus({this.status = Status.initial, this.data});
 
   const BlocStatus.loading()
-      : status = _Status.loading,
+      : status = Status.loading,
         data = null;
 
   const BlocStatus.success(T t)
-      : status = _Status.success,
+      : status = Status.success,
         data = t;
 
   const BlocStatus.initial()
-      : status = _Status.initial,
+      : status = Status.initial,
         data = null;
 
-  bool isLoading() => status == _Status.loading;
+  const BlocStatus.error()
+      : status = Status.error,
+        data = null;
 
-  bool isInitial() => status == _Status.initial;
+  bool isLoading() => status == Status.loading;
 
-  bool isSuccess() => status == _Status.success;
+  bool isInitial() => status == Status.initial;
+
+  bool isSuccess() => status == Status.success;
+
+  bool isError() => status == Status.error;
+
 }

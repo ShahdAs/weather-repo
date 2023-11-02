@@ -1,28 +1,35 @@
 part of 'bloc.dart';
 
-
- class HomeState{
+class HomeState{
   final BlocStatus myForecast;
   final BlocStatus autoComplete;
-  final BlocStatus myCurrent;
   final BlocStatus getExtent;
+  final BlocStatus theTimeIndex;
+  final BlocStatus getSearchedRegion;
 
   HomeState({
     this.myForecast = const BlocStatus.initial(),
     this.autoComplete = const BlocStatus.initial(),
-    this.myCurrent = const BlocStatus.initial(),
     this.getExtent = const BlocStatus.initial(),
- });
+    this.theTimeIndex = const BlocStatus.initial(),
+    this.getSearchedRegion = const BlocStatus.initial(),
+  });
 
-  HomeState copyWith({BlocStatus? myForecast,BlocStatus? autoComplete,BlocStatus? myCurrent, BlocStatus? getExtent}){
+  HomeState copyWith({
+    BlocStatus? myForecast,
+    BlocStatus? autoComplete,
+    BlocStatus? getExtent,
+    BlocStatus? theTimeIndex,
+    BlocStatus? getSearchedRegion,
+  }) {
     return HomeState(
       myForecast: myForecast ?? this.myForecast,
       autoComplete: autoComplete ?? this.autoComplete,
-      myCurrent: myCurrent ?? this.myCurrent,
       getExtent: getExtent ?? this.getExtent,
+      theTimeIndex: theTimeIndex ?? this.theTimeIndex,
+      getSearchedRegion: getSearchedRegion ?? this.getSearchedRegion
     );
   }
 
+
 }
-
-
