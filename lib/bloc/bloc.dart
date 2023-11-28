@@ -1,22 +1,19 @@
 import 'dart:convert';
-
-import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hydrated_bloc/hydrated_bloc.dart';
 import 'package:project/core/api/api.dart';
+import 'package:project/sharedPreference/sharedPreference_get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../core/model/bloc_state.dart';
 import 'dart:io';
 
 import '../core/model/forecast.dart';
 import '../presentation/Widget/searchedRegion.dart';
+import '../sharedPreference/sharedPreference_save.dart';
 
 part 'event.dart';
 
 part 'state.dart';
-
-var myForecastVarbloc;
-var myCurrentVarbloc;
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
   ApiRepo api = ApiRepo();
@@ -31,28 +28,43 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
         await getExtent(event, emit);
       } else if (event is TheTimeIndex) {
         await theTimeIndex(event, emit);
-      }else if(event is GetSearchedRegion){
+      } else if (event is GetSearchedRegion) {
         await getSearchedRegion(event, emit);
       }
     });
   }
 
-
-  getSearchedRegion(GetSearchedRegion event, Emitter emit){
-    emit(state.copyWith(getSearchedRegion: BlocStatus.success(event.data)));
+  getSearchedRegion(GetSearchedRegion event, Emitter emit) async {
+    emit(state.copyWith(getSearchedRegion: const BlocStatus.loading()));
+     if (event.data != null) {
+      emit(state.copyWith(getSearchedRegion: BlocStatus.success(event.data)));
+     }
+    // else if(event.data == null){
+    //   emit(state.copyWith(getSearchedRegion: const BlocStatus.loading()));
+    //   List<SearchedRegion> data = await GetPrefs.get();
+    //   emit(state.copyWith(getSearchedRegion: BlocStatus.success(data)));
+    // }else{
+    //   emit(state.copyWith(getSearchedRegion: const BlocStatus.error()));
+    // }
   }
 
   Future<void> getMyForecast(GetForecast event, Emitter emit) async {
-    // if(state.myForecast.data != null) return;
     emit(state.copyWith(myForecast: const BlocStatus.loading()));
 
     try {
       final result = await api.getMyForecast(event.data);
-      // if (result != null) {
-        emit(state.copyWith(myForecast: BlocStatus.success(result)));
-        savePrefs(result);
-        print('connected forecast');
-        myForecastVarbloc = result;
+      emit(state.copyWith(myForecast: BlocStatus.success(result)));
+      savePrefs(result);
+      SavePrefs(
+          save: Save.add,
+          givedData: SearchedRegion(
+              name: state.myForecast.data.locationModel.name,
+              region: state.myForecast.data.locationModel.region,
+              country: state.myForecast.data.locationModel.country,
+              lon: state.myForecast.data.locationModel.lon,
+              lat: state.myForecast.data.locationModel.lat));
+
+      print('connected forecast');
       // }
     } on SocketException catch (_) {
       emit(state.copyWith(myForecast: const BlocStatus.error()));
@@ -60,8 +72,8 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   Future<void> autoComplete(AutoCom event, Emitter emit) async {
-    emit(state.copyWith(autoComplete: const BlocStatus.loading()));
     try {
+      emit(state.copyWith(autoComplete: const BlocStatus.loading()));
       final result = await api.autoComplete(event.data);
       if (result != null) {
         emit(state.copyWith(autoComplete: BlocStatus.success(result)));
@@ -74,15 +86,13 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
   }
 
   getExtent(GetExtant event, Emitter emit) {
-    emit(state.copyWith(getExtent: BlocStatus.success(event.data)));
+    emit(state.copyWith(getExtent: event.data));
   }
 
   theTimeIndex(TheTimeIndex event, Emitter emit) {
-    emit(state.copyWith(theTimeIndex: BlocStatus.success(event.data)));
+    emit(state.copyWith(theTimeIndex: event.data));
   }
-
 }
-
 
 savePrefs(Forecast data) async {
   SharedPreferences prefs = await SharedPreferences.getInstance();

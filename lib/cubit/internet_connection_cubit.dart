@@ -11,13 +11,14 @@ class InternetConnectionCubit extends Cubit<InternetConnectionState> {
 
   void checkConnection(){
     _streamSubscription  = InternetConnectionChecker().onStatusChange.listen((event) {
+      emit(InternetConnectionLoading());
+      print('loading');
       if(event == InternetConnectionStatus.connected){
         emit(InternetConnectionConnected());
       }else{
         emit(InternetConnectionDisconnected());
       }
     });
-
   }
 
   @override

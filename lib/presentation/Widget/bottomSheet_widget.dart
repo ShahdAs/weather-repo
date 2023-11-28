@@ -4,14 +4,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:project/bloc/bloc.dart';
 import 'package:project/presentation/Widget/currentDetailWidget.dart';
+import '../../core/model/forecast.dart';
+import '../../logic/BlocBuilder_logic.dart';
 import '../globals.dart';
 import 'tabBar_edited.dart';
-
-
-
-var myForecastVar = myForecastVarbloc;
-
-
 
 
 class BottomSheetWidget extends StatefulWidget {
@@ -24,118 +20,111 @@ class BottomSheetWidget extends StatefulWidget {
 class _BottomSheetWidgetState extends State<BottomSheetWidget> {
   @override
   Widget build(BuildContext context) {
+    var size = MediaQuery.of(context).size;
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
-        if (state.getExtent.isSuccess()) {
-          double extant = state.getExtent.data;
-          double percent = (extant - 0.4) * 100 / 42;
+        double extantOfBottomSheet = state.getExtent;
+        double positionOfBottomSheet = (extantOfBottomSheet - 0.4) * 100 / 42;
 
-          return NotificationListener<DraggableScrollableNotification>(
-              onNotification: (notification) {
-                context
-                    .read<HomeBloc>()
-                    .add(GetExtant(data: notification.extent));
-                return true;
-              },
-              child: DraggableScrollableSheet(
-                  snap: true,
-                  initialChildSize: 0.4,
-                  minChildSize: 0.4,
-                  maxChildSize: 0.8,
-                  builder: (BuildContext context, myScrollController) {
-                    return ClipRRect(
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(0)),
-                      child: SingleChildScrollView(
-                          controller: myScrollController,
-                          child: Container(
-                            width: (MediaQuery.of(context).size.width),
-                            height: MediaQuery.of(context).size.height - 156,
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.vertical(
-                                    top: Radius.circular(80 - percent * 80)),
-                                gradient: bottomSheetGrad,
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: Color.fromRGBO(
-                                          0, 0, 0, 0.2 - percent * 0.2),
-                                      blurRadius: 15,
-                                      offset: const Offset(0, -11),
-                                      spreadRadius: 3,
-                                      blurStyle: BlurStyle.inner),
-                                ]),
-                            child: BlurryContainer(
-                              blur: 30,
-                              height: MediaQuery.of(context).size.height - 156,
-                              borderRadius: BorderRadius.circular(
-                                50 - percent * 50,
-                              ),
-                              width: (MediaQuery.of(context).size.width),
-                              padding: const EdgeInsets.all(0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.topCenter,
-                                    children: [
-                                      Container(
-                                        width: 48,
-                                        height: 5,
-                                        decoration: const  BoxDecoration(
-                                          borderRadius: BorderRadius.all(Radius.circular(25)),
-                                            color:  Color.fromRGBO(0, 0, 0, 0.3),
-                                        ),
-                                        margin: const EdgeInsets.all(9),
-                                      ),
-                                      Container(
-                                        height: 2,
-                                        width: 286,
-                                        decoration: const BoxDecoration(
-                                            gradient: LinearGradient(
-                                                begin: Alignment.centerLeft,
-                                                end: Alignment.centerRight,
-                                                colors: [
-                                                  Color.fromRGBO(
-                                                      255, 255, 255, 0),
-                                                  Color.fromRGBO(
-                                                      255, 255, 255, 0.1),
-                                                  Color.fromRGBO(
-                                                      255, 255, 255, 0)
-                                                ]),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Color.fromRGBO(
-                                                      255, 255, 255, 1),
-                                                  blurRadius: 15,
-                                                  offset: Offset(0, -11),
-                                                  spreadRadius: 3),
-                                            ]),
-                                      )
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: 200,
-                                    width: (MediaQuery.of(context).size.width),
-                                    child: const TabBarWidget(),
-                                  ),
-                                  const CurrentDetailWidget()
-                                ],
-                              ),
+        return NotificationListener<DraggableScrollableNotification>(
+            onNotification: (notification) {
+              context
+                  .read<HomeBloc>()
+                  .add(GetExtant(data: notification.extent));
+              return true;
+            },
+            child: DraggableScrollableSheet(
+                snap: true,
+                initialChildSize: 0.4,
+                minChildSize: 0.4,
+                maxChildSize: 0.8,
+                builder: (BuildContext context, myScrollController) {
+                  return ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(0)),
+                    child: SingleChildScrollView(
+                        controller: myScrollController,
+                        child: Container(
+                          width: (size.width),
+                          height: size.height - 156,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(80 - positionOfBottomSheet * 80)),
+                              gradient: bottomSheetGrad,
+                              boxShadow: [
+                                BoxShadow(
+                                    color: Color.fromRGBO(
+                                        0, 0, 0, 0.2 - positionOfBottomSheet * 0.2),
+                                    blurRadius: 15,
+                                    offset: const Offset(0, -11),
+                                    spreadRadius: 3,
+                                    blurStyle: BlurStyle.inner),
+                              ]),
+                          child: BlurryContainer(
+                            blur: 30,
+                            height: size.height - 156,
+                            borderRadius: BorderRadius.circular(
+                              50 - positionOfBottomSheet * 50,
                             ),
-                          )),
-                    );
-                  }));
-        } else {
-          return Container(
-            child: null,
-          );
-        }
+                            width: (size.width),
+                            padding: const EdgeInsets.all(0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Stack(
+                                  alignment: Alignment.topCenter,
+                                  children: [
+                                    Container(
+                                      width: 48,
+                                      height: 5,
+                                      decoration: const BoxDecoration(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(25)),
+                                        color: Color.fromRGBO(0, 0, 0, 0.3),
+                                      ),
+                                      margin: const EdgeInsets.all(9),
+                                    ),
+                                    Container(
+                                      height: 2,
+                                      width: 286,
+                                      decoration: const BoxDecoration(
+                                          gradient: LinearGradient(
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight,
+                                              colors: [
+                                                Color.fromRGBO(
+                                                    255, 255, 255, 0),
+                                                Color.fromRGBO(
+                                                    255, 255, 255, 0.1),
+                                                Color.fromRGBO(255, 255, 255, 0)
+                                              ]),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Color.fromRGBO(
+                                                    255, 255, 255, 1),
+                                                blurRadius: 15,
+                                                offset: Offset(0, -11),
+                                                spreadRadius: 3),
+                                          ]),
+                                    )
+                                  ],
+                                ),
+                                SizedBox(
+                                  height: 200,
+                                  width: size.width,
+                                  child: const TabBarWidget(),
+                                ),
+                                const CurrentDetailWidget()
+                              ],
+                            ),
+                          ),
+                        )),
+                  );
+                }));
       },
     );
   }
 }
-
-
 
 class TabBarWidget extends StatefulWidget {
   const TabBarWidget({Key? key}) : super(key: key);
@@ -162,98 +151,106 @@ class _TabBarWidgetState extends State<TabBarWidget>
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<HomeBloc, HomeState>(
-      listener: (context, state) {
-        if (state.myForecast.isSuccess()) {
-          myForecastVar = state.myForecast.data;
-        }
-      },
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Column(
-          children: [
-            SizedBox(
-              height: 25,
-              child: TabBar(
-                indicator: ShapeDecoration(
-                  shape: UnderlineInputBorderE(
-                    borderSide: const BorderSide(),
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        return BlocBuilderLogic(
+          state: state.myForecast,
+          successWidget: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Column(
+              children: [
+                SizedBox(
+                  height: 25,
+                  child: TabBar(
+                    indicator: ShapeDecoration(
+                      shape: UnderlineInputBorderE(
+                        borderSide: const BorderSide(),
+                      ),
+                    ),
+                    controller: _tabController,
+                    labelStyle: font15,
+                    tabs: const [
+                      Tab(
+                        text: ("Hourly Forecast"),
+                      ),
+                      Tab(
+                        text: ("Weekly Forecast"),
+                      ),
+                    ],
                   ),
                 ),
-                controller: _tabController,
-                labelStyle: font15,
-                tabs: const [
-                  Tab(
-                    text: ("Hourly Forecast"),
-                  ),
-                  Tab(
-                    text: ("Weekly Forecast"),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              height: 1,
-              padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
-              width: (MediaQuery.of(context).size.width),
-              decoration: const BoxDecoration(
-                  color: Color.fromRGBO(255, 255, 255, 0.2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.fromRGBO(0, 0, 0, 0.3),
-                      blurRadius: 1,
-                      offset: Offset(0, 1),
-                    ),
-                  ]),
-            ),
-            Expanded(
-                child: TabBarView(
-              controller: _tabController,
-              children: [
-                listWidget(myForecastVar.forecastModel, true),
-                listWidget(myForecastVar.forecastModel, false)
+                Container(
+                  height: 1,
+                  padding: const EdgeInsets.fromLTRB(0, 4, 0, 0),
+                  width: (MediaQuery.of(context).size.width),
+                  decoration: const BoxDecoration(
+                      color: Color.fromRGBO(255, 255, 255, 0.2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Color.fromRGBO(0, 0, 0, 0.3),
+                          blurRadius: 1,
+                          offset: Offset(0, 1),
+                        ),
+                      ]),
+                ),
+                Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      children: [
+                        ListWidget(data: state.myForecast.data.forecastModel,hourlyForecast: true),
+                        ListWidget(data: state.myForecast.data.forecastModel,hourlyForecast: false)
+                      ],
+                    )),
               ],
-            )),
-          ],
-        ),
-      ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
+class ListWidget extends StatelessWidget {
+  List<ForecastModel> data;
+  bool hourlyForecast;
+  int day = 0, hour = 0;
+  ListWidget({super.key, required this.data,required this.hourlyForecast});
 
-Widget listWidget(var data, bool isHour) {
-  return Builder(builder: (context) {
-    int day = 2, hour = 0 ;
+
+
+
+  @override
+  Widget build(BuildContext context) {
+
     for (int i = 0; i < 24; i++) {
       if (i == int.parse(DateFormat('H').format(DateTime.now()))) {
         hour = i;
       }
     }
-    for(int i = 0; i<3; i++){
-      if(DateFormat('d').format(DateTime.now()) == DateFormat('d').format(DateTime.parse(data[i].date))){
+    for (int i = 0; i < 3; i++) {
+      if (DateFormat('d').format(DateTime.now()) ==
+          DateFormat('d').format(DateTime.parse(data[i].date))) {
         day = i;
       }
     }
-    return BlocBuilder<HomeBloc, HomeState>(
-      builder: (context, state) {
-        context.read<HomeBloc>().add(TheTimeIndex(data: [hour, day]));
-        if (state.theTimeIndex.isSuccess()) {
-          double hourNow = double.parse(state.theTimeIndex.data[0].toString());
-          int dayNow = state.theTimeIndex.data[1];
 
+    return Builder(builder: (context) {
+      return BlocBuilder<HomeBloc, HomeState>(
+        builder: (context, state){
+          context.read<HomeBloc>().add(TheTimeIndex(data: [hour, day]));
+          double hourNow = double.parse(state.theTimeIndex[0].toString());
+          int dayNow = state.theTimeIndex[1];
           ScrollController scrollController = ScrollController(
-              initialScrollOffset: 6 + 72 * hourNow,
-              keepScrollOffset: true);
-
+              initialScrollOffset: 6 + 72 * double.parse(state.theTimeIndex[0].toString()), keepScrollOffset: true);
           return Container(
             margin: const EdgeInsets.all(6),
             height: 142,
             width: 100,
             child: ListView.builder(
+              key: ValueKey<int>(state.theTimeIndex[0]),
               controller: scrollController,
               shrinkWrap: true,
-              itemCount: isHour ? data[dayNow].hour.length : data.length,
+              itemCount: hourlyForecast ? data[dayNow].hour.length : data.length,
               scrollDirection: Axis.horizontal,
               itemBuilder: (BuildContext context, int index) {
                 return Row(
@@ -283,46 +280,46 @@ Widget listWidget(var data, bool isHour) {
                         padding: const EdgeInsets.all(0),
                         child: Container(
                           decoration: BoxDecoration(
-                            color: (index == hourNow && isHour)
+                            color: (index == hourNow && hourlyForecast)
                                 ? const Color.fromRGBO(72, 49, 157, 1)
-                                : (isHour == false && index == dayNow)
-                                    ? const Color.fromRGBO(72, 49, 157, 1)
-                                    : null,
-                            gradient: (hourNow == index && isHour)
+                                : (hourlyForecast == false && index == dayNow)
+                                ? const Color.fromRGBO(72, 49, 157, 1)
+                                : null,
+                            gradient: (hourNow == index && hourlyForecast)
                                 ? selectGrad
-                                : (isHour == false && index == dayNow)
-                                    ? selectGrad
-                                    : null,
+                                : (hourlyForecast == false && index == dayNow)
+                                ? selectGrad
+                                : null,
                           ),
                           child: Column(
                             children: <Widget>[
                               Padding(
                                 padding:
-                                    const EdgeInsets.fromLTRB(8.5, 16, 8.5, 0),
+                                const EdgeInsets.fromLTRB(8.5, 16, 8.5, 0),
                                 child: Text(
-                                  isHour
+                                  hourlyForecast
                                       ? DateFormat('j').format(DateTime.parse(
-                                          data[dayNow].hour[index].time))
+                                      data[dayNow].hour[index].time))
                                       : DateFormat('E').format(
-                                          DateTime.parse(data[index].date)),
+                                      DateTime.parse(data[index].date)),
                                   style: font15,
                                   maxLines: 1,
                                 ),
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.fromLTRB(8.5, 8, 8.5, 0),
+                                const EdgeInsets.fromLTRB(8.5, 8, 8.5, 0),
                                 child: Column(
                                   children: <Widget>[
                                     SizedBox(
                                       height: 32,
                                       width: 32,
-                                      child: Image.network(isHour
+                                      child: Image.network(hourlyForecast
                                           ? "https:${data[dayNow].hour[index].condition.icon}"
                                           : "https:${data[index].day.condition.icon}"),
                                     ),
                                     Text(
-                                      isHour
+                                      hourlyForecast
                                           ? "${data[dayNow].hour[index].chance_of_rain}%"
                                           : "${data[index].day.daily_chance_of_rain}%",
                                       style: fontB,
@@ -332,9 +329,9 @@ Widget listWidget(var data, bool isHour) {
                               ),
                               Padding(
                                 padding:
-                                    const EdgeInsets.fromLTRB(8.5, 16, 8.5, 0),
+                                const EdgeInsets.fromLTRB(8.5, 16, 8.5, 0),
                                 child: Text(
-                                  isHour
+                                  hourlyForecast
                                       ? "${data[dayNow].hour[index].temp_c}°"
                                       : "${data[index].day.avgtemp_c}°",
                                   style: font15,
@@ -351,12 +348,9 @@ Widget listWidget(var data, bool isHour) {
               },
             ),
           );
-        } else {
-          return Container(
-            child: null,
-          );
-        }
-      },
-    );
-  });
+        },
+      );
+    });
+  }
+
 }

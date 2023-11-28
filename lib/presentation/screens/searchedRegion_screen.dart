@@ -1,62 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:project/bloc/bloc.dart';
+import 'package:project/cubit/internet_connection_cubit.dart';
+import 'package:project/logic/BlocBuilder_logic.dart';
 import 'package:project/presentation/Widget/Region_widget.dart';
 import 'package:project/presentation/Widget/TextFieldStyled_widget.dart';
 import 'package:project/presentation/globals.dart';
-
+import '../../logic/InternetConnectionCubitListener_logic.dart';
+import '../../sharedPreference/sharedPreference_get.dart';
 import '../Widget/searchedRegion.dart';
 
-final List<SearchedRegion> searchedRegionOptions = <SearchedRegion>[
-  SearchedRegion(
-      name: 'hamah', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'aleppo', region: 'hamah', country: 'lebanon', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'homs', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'homf', region: 'hamah', country: 'palestine', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'homy', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'homb', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'hogs', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'hord', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'hoku', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-  SearchedRegion(
-      name: 'hogh', region: 'hamah', country: 'syria', lon: 1.1, lat: 1.4),
-];
+class SearchedRegionPage extends StatefulWidget {
+  const SearchedRegionPage({super.key});
 
-class SearchedRegionScreen extends StatelessWidget {
-  const SearchedRegionScreen({Key? key}) : super(key: key);
-
-  const SearchedRegionScreen._();
-
-  static Page<void> page() =>
-      const MaterialPage<void>(child: SearchedRegionScreen._());
+  static String _displayStringForOption(SearchedRegion option) =>
+      option.name.toLowerCase();
 
   @override
-  Widget build(BuildContext context) {
-    context
-        .read<HomeBloc>()
-        .add(GetSearchedRegion(data: searchedRegionOptions));
-    return _SearchedRegionScreen();
-  }
+  State<SearchedRegionPage> createState() => SearchedRegionPageState();
 }
 
-class _SearchedRegionScreen extends StatefulWidget {
-  static String _displayStringForOption(SearchedRegion option) => option.name;
-
-  @override
-  State<_SearchedRegionScreen> createState() => _SearchedRegionScreenState();
-}
-
-class _SearchedRegionScreenState extends State<_SearchedRegionScreen> {
+class SearchedRegionPageState extends State<SearchedRegionPage> {
   late FocusNode focusNode;
   late TextEditingController textEditingController;
+  List<SearchedRegion>? searchedRegionOptions = [];
 
   @override
   void initState() {
@@ -76,6 +43,10 @@ class _SearchedRegionScreenState extends State<_SearchedRegionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    GetPrefs.get().then((List<SearchedRegion> data) {
+      searchedRegionOptions = data;
+      context.read<HomeBloc>().add(GetSearchedRegion(data: data));
+    });
     return Scaffold(
       body: Container(
         decoration: const BoxDecoration(gradient: backGroundGrad),
@@ -99,15 +70,15 @@ class _SearchedRegionScreenState extends State<_SearchedRegionScreen> {
                 child: TextFieldStyled(
                   hintText: "Enter the region",
                   onEditingComplete: () {
-                    check(textEditingController.text);
+                    sendEventOfSearchedRegionsList(textEditingController.text);
                   },
                   controller: textEditingController,
                   focusNode: focusNode,
-                  onChanged: (theText) {
-                    check(theText);
+                  onChanged: (changedText) {
+                    sendEventOfSearchedRegionsList(changedText);
                   },
-                  onSubmitted: (theText) {
-                    check(theText);
+                  onSubmitted: (submittedText) {
+                    sendEventOfSearchedRegionsList(submittedText);
                     focusNode.unfocus();
                   },
                 ),
@@ -115,34 +86,48 @@ class _SearchedRegionScreenState extends State<_SearchedRegionScreen> {
               const SizedBox(
                 height: 10,
               ),
-              Expanded(
-                child: BlocBuilder<HomeBloc, HomeState>(
-                  builder: (context, state) {
-                    if (state.getSearchedRegion.isSuccess()) {
-                      return ListView.builder(
-                          // clipBehavior: Clip.none,
-                          // shrinkWrap: true,
+              Expanded(child:
+                  BlocBuilder<InternetConnectionCubit, InternetConnectionState>(
+                builder: (context, internetState) {
+                  return BlocBuilder<HomeBloc, HomeState>(
+                    builder: (context, state) {
+                      return BlocBuilderLogic(
+                        state: state.getSearchedRegion,
+                        successWidget: ListView.builder(
+                          key: ValueKey<int>(state.getSearchedRegion.data!.length ?? 0),
                           padding: const EdgeInsets.all(0),
-                          itemCount: state.getSearchedRegion.data.length,
+                          itemCount: state.getSearchedRegion.data!.length ?? 0,
                           itemBuilder: (context, index) {
                             SearchedRegion element =
                                 state.getSearchedRegion.data.elementAt(index);
                             return ListTile(
                               horizontalTitleGap: 0,
-                              // visualDensity: VisualDensity(horizontal: 2,vertical: 2),
                               title: RegionWidget(
                                 region: element,
                               ),
+                              onTap: () {
+                                InternetConnectionCubitListenerLogic(
+                                    state: internetState,
+                                    data: element.name.toLowerCase(),
+                                    internetConnectedFunction: (data) {
+                                      context
+                                          .read<HomeBloc>()
+                                          .add(GetForecast(data: data));
+                                    });
+                                Navigator.of(context).pop();
+                              },
                             );
-                          });
-                    } else {
-                      return const CircularProgressIndicator(
-                        color: Colors.white54,
+                          },
+                        ),
+                        errorWidget: const Text(
+                          'No elements has been founded',
+                          style: font20l,
+                        ),
                       );
-                    }
-                  },
-                ),
-              ),
+                    },
+                  );
+                },
+              )),
             ],
           ),
         ),
@@ -150,22 +135,19 @@ class _SearchedRegionScreenState extends State<_SearchedRegionScreen> {
     );
   }
 
-  void check(var theText) {
-    if (theText.toString() == '') {
-      List<SearchedRegion> searchedRegionsList = searchedRegionOptions;
-      context
-          .read<HomeBloc>()
-          .add(GetSearchedRegion(data: searchedRegionsList));
+  void sendEventOfSearchedRegionsList(var textBoxChangedText) {
+    List<SearchedRegion>? searchedRegionsList;
+    if (textBoxChangedText.toString() == '') {
+      searchedRegionsList = searchedRegionOptions;
     } else {
-      List<SearchedRegion> searchedRegionsList =
-          searchedRegionOptions.where((SearchedRegion option) {
-        return _SearchedRegionScreen._displayStringForOption(option)
+      searchedRegionsList =
+          searchedRegionOptions?.where((SearchedRegion option) {
+        return SearchedRegionPage._displayStringForOption(option)
             .toString()
-            .contains(theText.toString().toLowerCase());
+            .contains(textBoxChangedText.toString().toLowerCase());
       }).toList();
-      context
-          .read<HomeBloc>()
-          .add(GetSearchedRegion(data: searchedRegionsList));
+      print(searchedRegionsList?.map((e) => e.name).toList());
     }
+    context.read<HomeBloc>().add(GetSearchedRegion(data: searchedRegionsList));
   }
 }

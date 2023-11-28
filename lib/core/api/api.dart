@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../model/autoComplete.dart';
 import '../model/forecast.dart';
 
 class ApiRepo {
@@ -32,7 +33,7 @@ class ApiRepo {
   }
 
 
-  Future<List<String>> autoComplete(String location) async {
+  Future<List<AutoComplete>> autoComplete(String location) async {
     try {
       final result = await http
           .get(Uri.parse("${baseUrl}search.json").replace(queryParameters: {
@@ -40,9 +41,10 @@ class ApiRepo {
         "key": "5fbe43cdd5b04a19a7901237233110",
       }));
       return (jsonDecode(result.body) as List)
-          .map((e) => e["name"].toString())
+          .map((e) => AutoComplete.fromJson(e))
           .toList();
     } catch (e) {
+      print(e);
       rethrow;
     }
   }

@@ -31,8 +31,7 @@ class TheTimeIndex extends HomeEvent{
 }
 
 class GetSearchedRegion extends HomeEvent{
-  final List<SearchedRegion> data;
-
+  final List<SearchedRegion>? data;
   GetSearchedRegion({required this.data});
 }
 
